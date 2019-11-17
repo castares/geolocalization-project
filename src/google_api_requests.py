@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 import json
 from dotenv import load_dotenv
@@ -14,15 +15,22 @@ def nearbyRequest(longitude, latitude, radius):
         'radius' : radius,
         'key' : api_key
     }
-    r = requests.get(url, params=params)
-    return r.json()
+    answers = []
+    r = requests.get(url, params=params).json()
+    answers.append(r)
+    while ('next_page_token' in r):
+        time.sleep(2)
+        params['pageToken'] = r['next_page_token']
+        r = requests.get(url, params=params).json()
+        answers.append(r)
+    print(answers)
+    return answers
 
 def main():
     longitude = -0.208979 
     latitude = 51.51819
-    radius=2000
-    answer = nearbyRequest(longitude, latitude, radius)
-    return answer
+    radius=200
+    return nearbyRequest(longitude, latitude, radius)
 
 if __name__=="__main__":
     main()
