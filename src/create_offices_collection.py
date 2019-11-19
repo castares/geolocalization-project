@@ -21,7 +21,8 @@ def main():
                         "name": e["name"],
                         "country": office["country_code"],
                         "company_money_raised": e['total_money_raised'],
-                        "foundation_year": e["founded_year"]
+                        "foundation_year": e["founded_year"],
+                        "category": e['category_code']
                     }
                 }
                 db.offices.insert_one(geoJSON)
