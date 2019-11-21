@@ -1,7 +1,8 @@
 from pymongo import MongoClient
 import pandas as pd
 import json
-#import google_api_requests as google
+from bson.json_util import loads, dumps
+# import google_api_requests as google
 
 
 def connectCollection(database, collection="companies"):
@@ -13,6 +14,19 @@ def connectCollection(database, collection="companies"):
     return db, coll
 
 
+# def target_offices(offices, country_code, foundation_year, money_raised):
+#     target_offices = pd.DataFrame(offices.find({
+#         "$and": [
+#             {"properties.country": f"{country_code}"},
+#             {"properties.foundation_year": {"$gt": foundation_year}},
+#             {"properties.company_money_raised": {"$gte": f"${money_raised}M"}}
+#         ]
+#     }))
+#     print(type(target_offices))
+#
+#     return target_offices
+
+# # # TODO: Change to dataframe to_json and orient=records
 def target_offices(offices, country_code, foundation_year, money_raised):
     target_offices = list(offices.find({
         "$and": [
@@ -21,32 +35,18 @@ def target_offices(offices, country_code, foundation_year, money_raised):
             {"properties.company_money_raised": {"$gte": f"${money_raised}M"}}
         ]
     }))
+    output_file = dumps(target_offices)
     with open("../output/target_offices.json", "w") as file:
-        file.write(str(target_offices))
+        file.write(output_file)
     return target_offices
-
-# TODO: Change to dataframe to_json and orient=records
-# I"ve been trying, but it"s giving me an encoding error.
-# def target_offices(offices, country_code, foundation_year, money_raised):
-#     target_offices = pd.DataFrame(offices.find({
-#         "$and": [
-#             {"properties.country": f"{country_code}"},
-#             {"properties.foundation_year": {"$gt": foundation_year}},
-#             {"properties.company_money_raised": {"$gte": f"${money_raised}M"}}
-#         ]
-#     }), )
-#     print(target_offices.to_json("../output/target_offices.json", orient="records"))
-#     return target_offices.to_json(orient="records")
 
 
 def near_offices(offices, geometry, max_distance=2000):
     # Finds values in the offices companies.offices collection
     # matching the given geometry and distance in meters values.
-    return list(offices.find({"$and": [{"properties.deadpooled_year": {"$eq": None}}, {"geometry.coordinates":
-                                                                                       {"$near":
-                                                                                        {"$geometry": geometry,
-                                                                                         "$maxDistance": max_distance
-                                                                                         }}}]
+    return list(offices.find({"geometry.coordinates": {"$near": {"$geometry": geometry,
+                                                                 "$maxDistance": max_distance
+                                                                 }}
                               }))
 
 
@@ -98,8 +98,9 @@ def offices_filter(target_companies, offices):
         "Tech Startups": tech_startups_count
     })
     df.to_csv("../output/ranking.csv", index=False)
+    output_file = dumps(result)
     with open("../output/filtered_offices.json", "w") as file:
-        file.write(str(result))
+        file.write(output_file)
     return result, df
 
 
@@ -107,6 +108,7 @@ def main():
     db, offices = connectCollection("companies", "offices")
     target = target_offices(offices, "USA", 2009, 1)
     result, df = offices_filter(target, offices)
+    search_api(target, db, starbucks, 'cafe', 'Starbucks', 500)
 
 
 if __name__ == "__main__":
