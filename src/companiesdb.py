@@ -101,14 +101,14 @@ def offices_filter(target_companies, offices):
     output_file = dumps(result)
     with open("../output/filtered_offices.json", "w") as file:
         file.write(output_file)
+    print(df)
     return result, df
 
 
 def main():
     db, offices = connectCollection("companies", "offices")
-    target = target_offices(offices, "USA", 2009, 1)
+    target = target_offices(offices, "GBR", 2008, 1)
     result, df = offices_filter(target, offices)
-    search_api(target, db, starbucks, 'cafe', 'Starbucks', 500)
 
 
 if __name__ == "__main__":

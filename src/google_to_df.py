@@ -26,6 +26,10 @@ def main():
     for e in collections:
         add = addtodf(countcollection(e), e)
         ranking = ranking.merge(add, how="inner", on='Name')
+    ranking['ranking'] = (-(ranking['Companies Close'] * 87) + (ranking['Tech Startups'] * 30) + (ranking['starbucks_2']
+                                                                                                  * 10) + (ranking['schools_2'] * 26.1) + (ranking['airports_2'] * 20) + (ranking['bars_2'] * 43.5))
+    ranking.sort_values(by='ranking', ascending=False, inplace=True)
+    ranking.to_csv("../output/ranking.csv", index=False)
     print(ranking)
 
 

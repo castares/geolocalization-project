@@ -78,10 +78,10 @@ def main():
     # on a mongo collection.
     db, coll = comp.connectCollection("companies", "offices")
     target = json.load(open('../output/target_offices.json'))
-    searchbyRadius(target, db, "schools", 'school', 'school', 1000)
-    searchbyRadius(target, db, "starbucks", 'cafe', 'starbucks', 500)
-    searchbyRadius(target, db, "airports", 'airport', 'airport', 5000)
-    searchbyRadius(target, db, "bars", 'night_club', 'night_club', 1000)
+    searchbyRadius(target, db, "schools_2", 'school', 'school', 1000)
+    searchbyRadius(target, db, "starbucks_2", 'cafe', 'starbucks', 500)
+    searchbyRadius(target, db, "airports_2", 'airport', 'airport', 5000)
+    searchbyRadius(target, db, "bars_2", 'night_club', 'night_club', 1000)
 
 
 if __name__ == "__main__":
