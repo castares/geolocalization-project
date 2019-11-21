@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 import pandas as pd
+import json
+import google_api_requests as google
 
 
-def connectCollection(database, collection):
+def connectCollection(database, collection='companies'):
     # connects to a mongodb using pymongo
     # and returns a given collection from a given database.
     client = MongoClient('localhost', 27017)
@@ -11,14 +13,27 @@ def connectCollection(database, collection):
     return db, coll
 
 
+# def target_offices(offices, country_code, foundation_year, money_raised):
+#     target_offices = list(offices.find({
+#         "$and": [
+#             {"properties.country": f"{country_code}"},
+#             {"properties.foundation_year": {"$gt": foundation_year}},
+#             {"properties.company_money_raised": {"$gte": f"${money_raised}M"}}
+#         ]
+#     }))
+#     return target_offices
+
 def target_offices(offices, country_code, foundation_year, money_raised):
-    return list(offices.find({
+    target_offices = list(offices.find({
         "$and": [
             {"properties.country": f"{country_code}"},
             {"properties.foundation_year": {"$gt": foundation_year}},
             {"properties.company_money_raised": {"$gte": f"${money_raised}M"}}
         ]
     }))
+    with open('../output/target_offices.json', 'w') as file:
+        file.write(str(target_offices))
+    return target_offices
 
 
 def near_offices(offices, geometry, max_distance=2000):
@@ -79,12 +94,14 @@ def offices_filter(target_companies, offices):
         'Corporations Close': old_count,
         'Tech Startups': tech_startups_count
     })
-    print(df)
+    df.to_csv('../output/ranking.csv', index=False)
     return result, df
 
 
 def main():
-    pass
+    db, offices = connectCollection('companies', 'offices')
+    target = target_offices(offices, 'USA', 2009, 1)
+    result, df = offices_filter(target, offices)
 
 
 if __name__ == "__main__":

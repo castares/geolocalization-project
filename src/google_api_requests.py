@@ -3,6 +3,7 @@ import time
 import requests
 import json
 from dotenv import load_dotenv
+import companiesdb as comp
 
 load_dotenv()
 # API authentication
@@ -34,10 +35,9 @@ def nearbyRequest(longitude, latitude, place_type, keyword, rankby='distance'):
         'location': f'{latitude},{longitude}',
         'type': place_type,
         'keyword': keyword,
-        'rankby': rankby,
+        'radius': radius,
         'key': api_key
     }
-    places = []
     r = requests.get(url, params=params).json()
     # extract = list(map(lambda x: places.append(x), r['results']))
     # while ('next_page_token' in r):
@@ -48,12 +48,31 @@ def nearbyRequest(longitude, latitude, place_type, keyword, rankby='distance'):
     return r
 
 
+def starbucks_search(target_companies, db):
+    for e in target_companies:
+        longitude = e['geometry']['coordinates'][0]
+        latitude = e['geometry']['coordinates'][1]
+        answer = nearbyRequest(longitude, latitude,
+                               place_type='cafe', radius=500)
+        for e in answer['results']:
+            if e['name'] == 'Starbucks':
+                db.starbucks.insert_one(e)
+
+
+def school_search(target_companies, db):
+    for e in target_companies:
+        longitude = e['geometry']['coordinates'][0]
+        latitude = e['geometry']['coordinates'][1]
+        answer = nearbyRequest(longitude, latitude,
+                               place_type='cafe', radius=500)
+        for e in answer['results']:
+            if e['name'] == 'Starbucks':
+                db.starbucks.insert_one(e)
+
+
 def main():
-    longitude = -0.2058693
-    latitude = 51.5153986
-    keyword = 'Starbucks'
-    place_type = 'cafe'
-    places = nearbyRequest(longitude, latitude, place_type, keyword)
+    db, offices = comp.connectCollection('companies', 'offices')
+    target = comp.target_offices(offices, 'USA', 2009, 1)
 
     # print(places)
 

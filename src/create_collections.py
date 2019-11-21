@@ -2,7 +2,9 @@ from companiesdb import connectCollection
 
 
 def main():
+    # Connects to the database
     db, coll = connectCollection('companies', 'companies')
+    # Creates a new collection extracting all the offices from non deadpooled companies.
     db.create_collection("offices")
     all_comps = list(coll.find({"deadpooled_year": {"$eq": None}}))
     for e in all_comps:
@@ -26,6 +28,8 @@ def main():
                     }
                 }
                 db.offices.insert_one(geoJSON)
+    # Creates a new collection:
+    db.create_collection("starbucks")
 
 
 if __name__ == "__main__":
