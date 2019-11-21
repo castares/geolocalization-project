@@ -1,41 +1,32 @@
-import pandas as pd
 import companiesdb as comp
+import pandas as pd
+from collections import Counter
 
 
-def getLocation(item):
-    longitude = item['geometry']['location']['lng']
-    latitude = item['geometry']['location']['lat']
-    loc = {
-        'type': 'Point',
-        'coordinates': [float(longitude), float(latitude)]
-    }
-    return loc
+def countcollection(collection):
+    db, coll = comp.connectCollection("companies", collection)
+    items = list(db[collection].find())
+    count = []
+    for e in items:
+        count.append(e['properties']['reference'])
+    return count
 
 
-def nearTo(offices, geometry, max_distance=2000):
-    # Finds values in the offices companies.offices collection
-    # matching the given geometry and distance in meters values.
-    return list(offices.find({"geometry.coordinates": {"$near": {"$geometry": geometry,
-                                                                 "$maxDistance": max_distance
-                                                                 }}
-                              }))
-
-
-def addLocation(coll):
-    db, collection = comp.connectCollection("companies", coll)
-    items = list(collection.find())
-    for item in items:
-        value = {"$set": {'location': getLocation(item)}}
-        collection.update_one(item, value)
-    #collection.ensure_index(["location.coordinates", "GEO2D"])
+def addtodf(count, column):
+    x = Counter(count)
+    items_df = pd.DataFrame.from_dict(x, orient='index')
+    items_df = items_df.reset_index()
+    items_df.columns = ['Name', column]
+    return items_df
 
 
 def main():
-    df = pd.read_csv('../output/ranking.csv')
-    # addLocation('starbucks')
-    addLocation('bars')
-    addLocation('airports')
-    addLocation('schools')
+    ranking = pd.read_csv('../output/ranking.csv')
+    collections = ['starbucks_2', 'schools_2', 'airports_2', 'bars_2']
+    for e in collections:
+        add = addtodf(countcollection(e), e)
+        ranking = ranking.merge(add, how="inner", on='Name')
+    print(ranking)
 
 
 if __name__ == "__main__":
