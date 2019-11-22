@@ -1,14 +1,26 @@
 from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
 import pandas as pd
 import json
 from bson.json_util import loads, dumps
-# import google_api_requests as google
+import companiesdb as comp
+
+
+load_dotenv()
+
+connectionURL = os.getenv("MONGODB_URL")
+client = MongoClient()
+print(f'Conected to mongodb in --> {connectionURL}')
+
+
+def getClient():
+    return client
 
 
 def connectCollection(database, collection="companies"):
     # connects to a mongodb using pymongo
     # and returns a given collection from a given database.
-    client = MongoClient("localhost", 27017)
     db = client[database]
     coll = db[collection]
     return db, coll
