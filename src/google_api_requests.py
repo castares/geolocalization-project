@@ -30,7 +30,7 @@ api_key = os.getenv("GOOGLE_CLOUD_API_KEY")
 #     return places
 
 def nearbyRequest(longitude, latitude, place_type, keyword, radius):
-    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     params = {
         'location': f'{latitude},{longitude}',
         'type': place_type,
