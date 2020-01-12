@@ -69,8 +69,11 @@ def searchbyRadius(target_companies, db, collection, place_type, keyword, radius
                     "id": x["id"],
                     "reference": e["properties"]["name"]}
             }
-            db[collection].insert_one(geoJSON)
-            print("document inserted")
+            if x['id'] not in db[collection].distinct('properties.id'):
+                db[collection].insert_one(geoJSON)
+                print("document inserted")
+            else:
+                print("Place id already in database")
 
 
 def main():
